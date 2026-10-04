@@ -1,0 +1,290 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register | EduAttend — Digital Attendance System</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .register-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      position: relative;
+    }
+
+    .register-card {
+      width: 100%;
+      max-width: 650px;
+      padding: 40px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .role-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .role-btn {
+      padding: 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .role-btn.active {
+      background: rgba(67, 97, 238, 0.15);
+      border-color: var(--primary);
+      color: var(--primary-light);
+      box-shadow: 0 0 15px rgba(67, 97, 238, 0.2);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 24px;
+      transition: var(--transition);
+    }
+
+    .back-link:hover {
+      color: var(--primary-light);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-bg"></div>
+  <div class="grid-overlay"></div>
+
+  <div class="register-page">
+    <div class="register-card glass-solid animate-scale-in">
+      <a href="index.html" class="back-link">
+        <span>←</span> Back to Login
+      </a>
+
+      <div class="text-center mb-4">
+        <h1 class="gradient-text font-display" style="font-size: 28px; letter-spacing: 1px;">JOIN EDUATTEND</h1>
+        <p class="text-secondary mt-1">Create your account to get started</p>
+      </div>
+
+      <div class="role-selector">
+        <button type="button" class="role-btn active" onclick="setRole('student')">
+          <span>🎓</span> Student
+        </button>
+        <button type="button" class="role-btn" onclick="setRole('faculty')">
+          <span>👨‍🏫</span> Faculty
+        </button>
+      </div>
+
+      <form id="registerForm" onsubmit="handleRegister(event)">
+        <div class="form-grid">
+          <!-- Common Fields -->
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="regName" class="form-control" placeholder="Enter your full name" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="regEmail" class="form-control" placeholder="email@college.edu" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="regPassword" class="form-control" placeholder="Create a password" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Phone (Optional)</label>
+            <input type="tel" id="regPhone" class="form-control" placeholder="+91 XXXX-XXXXXX" />
+          </div>
+
+          <!-- Student Specific -->
+          <div class="form-group student-field">
+            <label class="form-label">Student Code</label>
+            <input type="text" id="studentCode" class="form-control" placeholder="STU2024XXX" />
+          </div>
+
+          <div class="form-group student-field">
+            <label class="form-label">Roll Number</label>
+            <input type="text" id="rollNumber" class="form-control" placeholder="e.g. 24CS001" />
+          </div>
+
+          <!-- Faculty Specific -->
+          <div class="form-group faculty-field hidden">
+            <label class="form-label">Faculty Code</label>
+            <input type="text" id="facultyCode" class="form-control" placeholder="FACXXX" />
+          </div>
+
+          <div class="form-group faculty-field hidden">
+            <label class="form-label">Designation</label>
+            <select id="designation" class="form-control" title="Designation">
+              <option value="Assistant Professor">Assistant Professor</option>
+              <option value="Associate Professor">Associate Professor</option>
+              <option value="Professor">Professor</option>
+              <option value="HOD">HOD</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Department</label>
+            <select id="regDept" class="form-control" title="Department" required>
+              <option value="">Select Department</option>
+              <!-- Populated via API -->
+            </select>
+          </div>
+
+
+
+          <!-- Student Year/Section -->
+          <div class="form-group student-field">
+            <label class="form-label">Year</label>
+            <select id="regYear" class="form-control" title="Year">
+              <option value="">Select Year</option>
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4">4th Year</option>
+            </select>
+          </div>
+
+          <div class="form-group student-field">
+            <label class="form-label">Section</label>
+            <input type="text" id="regSection" class="form-control" placeholder="e.g. A" maxlength="1" />
+          </div>
+
+          <div class="full-width mt-4">
+            <button type="submit" class="btn btn-primary w-full" id="regBtn">
+              <span id="regBtnText">Create Account</span>
+              <span id="regSpinner" class="spinner"
+                style="display:none; border-width:2px; width:16px; height:16px;"></span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="js/main.js"></script>
+  <script>
+    let currentRole = 'student';
+
+    function setRole(role) {
+      currentRole = role;
+      document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      if (role === 'student') {
+        document.querySelectorAll('.student-field').forEach(el => el.classList.remove('hidden'));
+        document.querySelectorAll('.faculty-field').forEach(el => el.classList.add('hidden'));
+      } else {
+        document.querySelectorAll('.student-field').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.faculty-field').forEach(el => el.classList.remove('hidden'));
+      }
+    }
+
+    async function loadDepartments() {
+      try {
+        const res = await fetch('http://localhost:3000/api/auth/departments');
+        const depts = await res.json();
+        const select = document.getElementById('regDept');
+        depts.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = `${d.name} (${d.code})`;
+          select.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Error loading depts:', err);
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const btn = document.getElementById('regBtn');
+      const text = document.getElementById('regBtnText');
+      const spinner = document.getElementById('regSpinner');
+
+      btn.disabled = true;
+      text.textContent = 'Creating account...';
+      spinner.style.display = 'inline-block';
+
+      const formData = {
+        name: document.getElementById('regName').value,
+        email: document.getElementById('regEmail').value,
+        password: document.getElementById('regPassword').value,
+        role: currentRole,
+        phone: document.getElementById('regPhone').value,
+        dept_id: document.getElementById('regDept').value
+      };
+
+      if (currentRole === 'student') {
+        formData.student_code = document.getElementById('studentCode').value;
+        formData.roll_number = document.getElementById('rollNumber').value;
+        formData.year = document.getElementById('regYear').value;
+        formData.section = document.getElementById('regSection').value;
+      } else {
+        formData.faculty_code = document.getElementById('facultyCode').value;
+        formData.designation = document.getElementById('designation').value;
+      }
+
+      try {
+        const res = await fetch('http://localhost:3000/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Registration failed');
+
+        showToast(data.message, 'success');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 2000);
+      } catch (err) {
+        showToast(err.message, 'error');
+        btn.disabled = false;
+        text.textContent = 'Create Account';
+        spinner.style.display = 'none';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadDepartments);
+  </script>
+</body>
+
+</html>
