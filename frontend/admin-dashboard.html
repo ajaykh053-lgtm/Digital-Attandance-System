@@ -1,0 +1,312 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Admin Dashboard — EduAttend</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+
+<body>
+  <div class="page-bg"></div>
+  <div class="grid-overlay"></div>
+  <div id="toast-container"></div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-logo">EA</div>
+        <div class="sidebar-brand-text">
+          <div class="sidebar-brand-name">EduAttend</div>
+          <div class="sidebar-brand-sub">Admin Panel</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <span class="nav-section-label">Main</span>
+        <a href="admin-dashboard.html" class="nav-item active">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+          </svg>Dashboard
+        </a>
+        <a href="students.html" class="nav-item">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>Students
+        </a>
+        <a href="faculty.html" class="nav-item">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="8.5" cy="7" r="4" />
+            <line x1="20" y1="8" x2="20" y2="14" />
+            <line x1="17" y1="11" x2="23" y2="11" />
+          </svg>Faculty
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user" onclick="logout()">
+          <div class="avatar avatar-md"
+            style="background:linear-gradient(135deg,var(--primary),var(--accent));color:white">AD</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebarUserName">Admin User</div>
+            <div class="sidebar-user-role" id="sidebarUserRole">Administrator</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" id="hamburger"
+            aria-label="Toggle menu"><span></span><span></span><span></span></button>
+          <div>
+            <div class="topbar-title">Admin Dashboard</div>
+            <div class="topbar-subtitle">Overview Analytics</div>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="avatar avatar-md"
+            style="background:linear-gradient(135deg,var(--primary),var(--accent));color:white">AD</div>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <div class="page-header animate-fade-in-up">
+          <div>
+            <h1 class="page-title">Overview <span class="gradient-text">Analytics</span></h1>
+            <p class="page-subtitle">Real-time attendance statistics across all departments</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline btn-sm" onclick="openModal('addFacultyModal')">➕ Add Faculty</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('addStudentModal')">➕ Add Student</button>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card blue animate-fade-in-up delay-1">
+            <div class="stat-icon">🎓</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-students" data-target="0">0</div>
+              <div class="stat-label">Total Students</div>
+            </div>
+          </div>
+          <div class="stat-card cyan animate-fade-in-up delay-2">
+            <div class="stat-icon">👨‍🏫</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-faculty" data-target="0">0</div>
+              <div class="stat-label">Faculty Members</div>
+            </div>
+          </div>
+          <div class="stat-card green animate-fade-in-up delay-3">
+            <div class="stat-icon">📈</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-att" data-target="0" data-suffix="%">0%</div>
+              <div class="stat-label">Overall Attendance</div>
+            </div>
+          </div>
+          <div class="stat-card orange animate-fade-in-up delay-4">
+            <div class="stat-icon">🏛️</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-depts" data-target="0">0</div>
+              <div class="stat-label">Departments</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div style="display:flex;flex-direction:column;gap:24px;">
+            <div class="panel animate-fade-in-up delay-2">
+              <div class="panel-header">
+                <div class="panel-title">Department-wise Attendance</div>
+              </div>
+              <div class="panel-body">
+                <div class="chart-container" style="height:260px"><canvas id="deptChart"></canvas></div>
+              </div>
+            </div>
+            <div class="panel animate-fade-in-up delay-3">
+              <div class="panel-header">
+                <div class="panel-title">Department Breakdown</div>
+              </div>
+              <div class="table-wrapper">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Department</th>
+                      <th>Students</th>
+                      <th>Attendance %</th>
+                    </tr>
+                  </thead>
+                  <tbody id="deptTableBody"></tbody>
+                </table>
+                <p class="text-muted text-center p-4" id="emptyDeptMsg">No data available.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ADD STUDENT MODAL -->
+  <div class="modal-overlay" id="addStudentModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Add New Student</div><button class="modal-close" data-modal-close>✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">Full Name</label><input type="text" class="form-control"
+            id="sName" placeholder="Rahul Sharma" /></div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-control"
+            id="sEmail" placeholder="student@college.edu" /></div>
+        <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="form-control"
+            id="sPhone" placeholder="+91 9876543210" /></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group"><label class="form-label">Student Code</label><input type="text" class="form-control"
+              id="sCode" placeholder="STU2024001" /></div>
+          <div class="form-group"><label class="form-label">Roll Number</label><input type="text" class="form-control"
+              id="sRoll" placeholder="24CS001" /></div>
+        </div>
+        <div class="form-group"><label class="form-label">Department</label><select title="Department" class="form-control" id="sDept">
+            <option value="">Select Department</option>
+          </select></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group"><label class="form-label">Year</label><select title="Year" class="form-control" id="sYear">
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4">4th Year</option>
+            </select></div>
+          <div class="form-group"><label class="form-label">Section</label><select title="Section" class="form-control" id="sSection">
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+            </select></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-outline" data-modal-close>Cancel</button><button
+          class="btn btn-primary" onclick="submitAddStudent()">Add Student</button></div>
+    </div>
+  </div>
+
+  <!-- ADD FACULTY MODAL -->
+  <div class="modal-overlay" id="addFacultyModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Add New Faculty</div><button class="modal-close" data-modal-close>✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">Full Name</label><input type="text" class="form-control"
+            id="fName" placeholder="Dr. Singh" /></div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-control"
+            id="fEmail" placeholder="faculty@college.edu" /></div>
+        <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="form-control"
+            id="fPhone" placeholder="+91 9876543210" /></div>
+        <div class="form-group"><label class="form-label">Faculty Code</label><input type="text" class="form-control"
+            id="fCode" placeholder="FAC001" /></div>
+        <div class="form-group"><label class="form-label">Department</label><select title="Department" class="form-control" id="fDept">
+            <option value="">Select Department</option>
+          </select></div>
+        <div class="form-group"><label class="form-label">Designation</label><input type="text" class="form-control"
+            id="fDesignation" placeholder="Assistant Professor" /></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-outline" data-modal-close>Cancel</button><button
+          class="btn btn-primary" onclick="submitAddFaculty()">Add Faculty</button></div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script src="js/charts.js"></script>
+  <script>
+    async function fetchData() {
+      try {
+        const [stats, deptsStats, deptsList] = await Promise.all([
+          apiFetch('/admin/stats'),
+          apiFetch('/admin/departments'),
+          apiFetch('/auth/departments')
+        ]);
+        
+        document.getElementById('stat-students').dataset.target = stats.total_students || 0;
+        document.getElementById('stat-faculty').dataset.target = stats.total_faculty || 0;
+        document.getElementById('stat-att').dataset.target = stats.average_attendance || 0;
+        document.getElementById('stat-depts').dataset.target = stats.total_departments || 0;
+        document.querySelectorAll('.stat-value').forEach(animateCounter);
+
+        const tbody = document.getElementById('deptTableBody');
+        if (tbody && deptsStats.length > 0) {
+          const emptyMsg = document.getElementById('emptyDeptMsg');
+          if (emptyMsg) emptyMsg.style.display = 'none';
+          tbody.innerHTML = deptsStats.map(d => `<tr><td>${d.dept_name}</td><td>${d.total_students}</td><td>${d.avg_attendance}%</td></tr>`).join('');
+          if (window.drawBarChart) drawBarChart('deptChart', deptsStats.map(d => d.dept_code), deptsStats.map(d => d.avg_attendance), deptsStats.map(() => '#4361ee'));
+        }
+
+        const sDept = document.getElementById('sDept');
+        const fDept = document.getElementById('fDept');
+        const deptOptions = '<option value="">Select Department</option>' + deptsList.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+        if (sDept) sDept.innerHTML = deptOptions;
+        if (fDept) fDept.innerHTML = deptOptions;
+      } catch (err) { 
+        console.error('Fetch error:', err);
+      }
+    }
+
+    async function submitAddStudent() {
+      const data = {
+        name: document.getElementById('sName').value,
+        email: document.getElementById('sEmail').value,
+        student_code: document.getElementById('sCode').value,
+        roll_number: document.getElementById('sRoll').value,
+        dept_id: document.getElementById('sDept').value,
+        year: document.getElementById('sYear').value,
+        section: document.getElementById('sSection').value,
+        phone: document.getElementById('sPhone').value,
+        password: 'student123'
+      };
+      try {
+        await apiFetch('/admin/students', {
+          method: 'POST',
+          body: JSON.stringify(data)
+        });
+        showToast('Student added!', 'success');
+        closeModal('addStudentModal');
+        fetchData();
+      } catch (err) { 
+        showToast(err.message, 'danger'); 
+      }
+    }
+
+    async function submitAddFaculty() {
+      const data = {
+        name: document.getElementById('fName').value,
+        email: document.getElementById('fEmail').value,
+        faculty_code: document.getElementById('fCode').value,
+        dept_id: document.getElementById('fDept').value,
+        designation: document.getElementById('fDesignation').value,
+        phone: document.getElementById('fPhone').value,
+        password: 'faculty123'
+      };
+      try {
+        await apiFetch('/admin/faculty', {
+          method: 'POST',
+          body: JSON.stringify(data)
+        });
+        showToast('Faculty added!', 'success');
+        closeModal('addFacultyModal');
+        fetchData();
+      } catch (err) { 
+        showToast(err.message, 'danger'); 
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchData);
+  </script>
+</body>
+
+</html>
