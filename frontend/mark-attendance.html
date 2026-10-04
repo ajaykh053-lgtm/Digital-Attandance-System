@@ -1,0 +1,369 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Mark Attendance — EduAttend</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <style>
+    .status-group {
+      display: flex;
+      gap: 15px;
+    }
+
+    .status-option {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .status-option:hover {
+      background: rgba(var(--primary-rgb), 0.1);
+    }
+
+    .status-option input {
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-bg"></div>
+  <div class="grid-overlay"></div>
+  <div id="toast-container"></div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-logo">EA</div>
+        <div class="sidebar-brand-text">
+          <div class="sidebar-brand-name">EduAttend</div>
+          <div class="sidebar-brand-sub">Management</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <span class="nav-section-label">Main</span>
+        <a href="faculty-dashboard.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+          </svg>Dashboard</a>
+        <a href="mark-attendance.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+          </svg>Mark Attendance</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user" onclick="logout()">
+          <div class="avatar avatar-md" id="sidebarAvatar">U</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebarUserName">Loading...</div>
+            <div class="sidebar-user-role" id="sidebarUserRole">Faculty</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" id="hamburger"
+            title="Toggle sidebar"><span></span><span></span><span></span></button>
+          <div class="topbar-title">Attendance Register</div>
+        </div>
+        <div class="topbar-right">
+          <button class="btn btn-primary btn-sm" id="btnSubmitTop" onclick="submitAttendance()"
+            title="Submit Attendance" style="display:none">Submit Now</button>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <div class="page-header animate-fade-in-up">
+          <h1 class="page-title">Mark <span class="gradient-text">Presence</span></h1>
+          <p class="page-subtitle">Select subject, section, and period to start</p>
+        </div>
+
+        <!-- Selection Panel -->
+        <div class="panel animate-fade-in-up delay-1">
+          <div class="panel-body">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px">
+              <div class="form-group">
+                <label class="form-label">Subject</label>
+                <select class="form-control" id="subjectSelect" title="Choose Subject">
+                  <option value="">-- Loading Subjects --</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Section</label>
+                <select class="form-control" id="sectionSelect" disabled title="Choose Section">
+                  <option value="">-- Pick Subject First --</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Date</label>
+                <input type="date" class="form-control" id="dateInput" title="Select Date">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Period</label>
+                <select class="form-control" id="periodSelect" title="Select Period">
+                  <option value="1">Period 1</option>
+                  <option value="2" selected>Period 2</option>
+                  <option value="3">Period 3</option>
+                  <option value="4">Period 4</option>
+                  <option value="5">Period 5</option>
+                  <option value="6">Period 6</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Student List Panel -->
+        <div id="studentPanel" class="panel animate-fade-in-up delay-2" style="display:none; margin-top:24px">
+          <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center">
+            <div class="panel-title">Students for <span id="classDetail" class="gradient-text">Class</span></div>
+            <div style="display:flex; gap:10px">
+              <button class="btn btn-outline btn-sm" onclick="markAll('present')">All Present</button>
+              <button class="btn btn-primary btn-sm" onclick="submitAttendance()">Save Attendance</button>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Roll No</th>
+                  <th>Student Name</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="studentList"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="panel animate-fade-in-up delay-2"
+          style="margin-top:24px; text-align:center; padding:60px 20px">
+          <div style="font-size:48px; margin-bottom:20px">📅</div>
+          <h3>Ready to start?</h3>
+          <p class="text-muted">Select a subject and section to load the student register.</p>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    const API_BASE = 'http://localhost:3000/api';
+    let currentStudents = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Set Date
+      document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+
+      // 2. Auth Check
+      const token = localStorage.getItem('ea_token');
+      if (!token) { window.location.href = 'index.html'; return; }
+
+      // 3. Load Profile
+      if (typeof syncProfile === 'function') syncProfile();
+
+      // 4. Load Subjects
+      await loadSubjects();
+
+      // 5. Setup Listeners
+      document.getElementById('subjectSelect').addEventListener('change', loadSections);
+      document.getElementById('sectionSelect').addEventListener('change', fetchStudents);
+    });
+
+    async function loadSubjects() {
+      const token = localStorage.getItem('ea_token');
+      const select = document.getElementById('subjectSelect');
+
+      try {
+        const res = await fetch(`${API_BASE}/attendance/faculty/subjects`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to fetch subjects');
+        }
+
+        const subjects = data;
+        select.innerHTML = '<option value="">-- Select Subject --</option>';
+
+        if (!Array.isArray(subjects)) {
+          console.error('Expected array of subjects, got:', subjects);
+          throw new Error('Invalid data received from server');
+        }
+
+        if (subjects.length === 0) {
+          select.innerHTML = '<option value="">No subjects assigned</option>';
+          logDebug('No subjects found for this account.');
+          return;
+        }
+
+        subjects.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.subject_id;
+          opt.textContent = `${s.subject_name} (${s.subject_code})`;
+          select.appendChild(opt);
+        });
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    async function loadSections() {
+      const subjectId = document.getElementById('subjectSelect').value;
+      const sectionSelect = document.getElementById('sectionSelect');
+      const token = localStorage.getItem('ea_token');
+
+      sectionSelect.innerHTML = '<option value="">-- Loading --</option>';
+      sectionSelect.disabled = true;
+      document.getElementById('studentPanel').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'block';
+
+      if (!subjectId) {
+        sectionSelect.innerHTML = '<option value="">-- Pick Subject First --</option>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/attendance/faculty/sections?subject_id=${subjectId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const sections = await res.json();
+
+        if (!res.ok) throw new Error(sections.error || 'Failed to fetch sections');
+
+        sectionSelect.innerHTML = '<option value="">-- Select Section --</option>';
+        if (sections.length === 0) {
+          sectionSelect.innerHTML = '<option value="">No sections found</option>';
+          return;
+        }
+
+        sections.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.faculty_subj_id;
+          opt.textContent = `Section ${s.section}`;
+          sectionSelect.appendChild(opt);
+        });
+
+        sectionSelect.disabled = false;
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    async function fetchStudents() {
+      const fsId = document.getElementById('sectionSelect').value;
+      const token = localStorage.getItem('ea_token');
+
+      if (!fsId) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/attendance/class/students?faculty_subj_id=${fsId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const students = await res.json();
+
+        if (!res.ok) throw new Error(students.error || 'Fetch failed');
+
+        currentStudents = students;
+        renderStudentList();
+
+        if (students.length > 0) {
+          document.getElementById('studentPanel').style.display = 'block';
+          document.getElementById('emptyState').style.display = 'none';
+          document.getElementById('btnSubmitTop').style.display = 'block';
+
+          const subjText = document.getElementById('subjectSelect').options[document.getElementById('subjectSelect').selectedIndex].text;
+          const sectText = document.getElementById('sectionSelect').options[document.getElementById('sectionSelect').selectedIndex].text;
+          document.getElementById('classDetail').textContent = `${subjText} - ${sectText}`;
+        } else {
+          showToast('No students found for this section.', 'warning');
+        }
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    function renderStudentList() {
+      const tbody = document.getElementById('studentList');
+      tbody.innerHTML = currentStudents.map(s => `
+        <tr>
+          <td>${s.roll_number}</td>
+          <td><strong>${s.name}</strong></td>
+          <td>
+            <div class="status-group">
+              <label class="status-option">
+                <input type="radio" name="att_${s.id}" value="present" checked> Present
+              </label>
+              <label class="status-option">
+                <input type="radio" name="att_${s.id}" value="absent"> Absent
+              </label>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function markAll(status) {
+      document.querySelectorAll(`input[value="${status}"]`).forEach(el => el.checked = true);
+    }
+
+    async function submitAttendance() {
+      const fsId = document.getElementById('sectionSelect').value;
+      const date = document.getElementById('dateInput').value;
+      const period = document.getElementById('periodSelect').value;
+      const token = localStorage.getItem('ea_token');
+
+      if (!fsId || !date || !period) {
+        showToast('Please select all details before submitting.', 'warning');
+        return;
+      }
+
+      const records = currentStudents.map(s => {
+        const status = document.querySelector(`input[name="att_${s.id}"]:checked`).value;
+        return { student_id: s.id, status };
+      });
+
+      try {
+        const res = await fetch(`${API_BASE}/attendance/session`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ faculty_subj_id: fsId, date, period, records })
+        });
+        const result = await res.json();
+
+        if (res.ok) {
+          showToast('Attendance marked successfully!', 'success');
+          setTimeout(() => window.location.href = 'faculty-dashboard.html', 1500);
+        } else {
+          throw new Error(result.error || 'Submission failed');
+        }
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    function logDebug(msg) {
+      const log = document.getElementById('debugLog');
+      log.style.display = 'block';
+      log.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+    }
+  </script>
+</body>
+
+</html>
