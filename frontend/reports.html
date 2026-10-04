@@ -1,0 +1,203 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Reports — EduAttend</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+
+<body>
+  <div class="page-bg"></div>
+  <div class="grid-overlay"></div>
+  <div id="toast-container"></div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-logo">EA</div>
+        <div class="sidebar-brand-text">
+          <div class="sidebar-brand-name">EduAttend</div>
+          <div class="sidebar-brand-sub">Management</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <span class="nav-section-label">Main</span>
+        <a href="admin-dashboard.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+          </svg>Dashboard</a>
+        <a href="reports.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>Reports</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user" onclick="logout()">
+          <div class="avatar avatar-md"
+            style="background:linear-gradient(135deg,var(--primary),var(--accent));color:white">U</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebarUserName">User Name</div>
+            <div class="sidebar-user-role" id="sidebarUserRole">Role</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" id="hamburger"
+            aria-label="Toggle menu"><span></span><span></span><span></span></button>
+          <div>
+            <div class="topbar-title">Attendance Reports</div>
+            <div class="topbar-subtitle">Analyze and export attendance data</div>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button class="btn btn-primary btn-sm"
+            onclick="showToast('Export will be available once data is loaded.','info')">Export PDF</button>
+          <div class="avatar avatar-md"
+            style="background:linear-gradient(135deg,var(--primary),var(--accent));color:white">U</div>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <div class="page-header animate-fade-in-up">
+          <div>
+            <h1 class="page-title">Detailed <span class="gradient-text">Reports</span></h1>
+            <p class="page-subtitle">Filter by department, year, or student to generate custom reports</p>
+          </div>
+        </div>
+
+        <div class="filter-bar animate-fade-in-up delay-1">
+          <select class="form-control" id="filterDept" title="Department">
+            <option value="">All Departments</option>
+            <option value="1">CSE</option>
+            <option value="2">ECE</option>
+            <option value="3">ME</option>
+            <option value="4">CE</option>
+            <option value="5">EE</option>
+            <option value="6">IT</option>
+          </select>
+          <select class="form-control" id="filterYear" title="Year">
+            <option value="">All Years</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+          <input type="text" class="form-control" id="filterSearch" placeholder="Search student name..."
+            style="max-width:250px" />
+          <button class="btn btn-outline btn-sm" id="btnFilter">Filter</button>
+        </div>
+
+        <div class="panel animate-fade-in-up delay-2">
+          <div class="panel-header">
+            <div class="panel-title">Report Data</div>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Roll Number</th>
+                  <th>Dept</th>
+                  <th>Class & Section</th>
+                  <th>Attendance %</th>
+                  <th>Progress</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="7" class="text-center p-4 text-muted">No report data available. Please select filters and
+                    click 'Filter'.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('ea_token');
+      if (!token) {
+        window.location.href = 'index.html';
+        return;
+      }
+      fetchFilters();
+      fetchReport();
+    });
+
+    async function fetchFilters() {
+      try {
+        const res = await fetch('http://localhost:3000/api/auth/departments');
+        const depts = await res.json();
+        const deptSelect = document.getElementById('filterDept');
+        deptSelect.innerHTML = '<option value="">All Departments</option>' +
+          depts.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+      } catch (err) { console.error(err); }
+    }
+
+    async function fetchReport() {
+      const dept = document.getElementById('filterDept').value;
+      const year = document.getElementById('filterYear').value;
+      const search = document.getElementById('filterSearch').value;
+
+      const token = localStorage.getItem('ea_token');
+      try {
+        let url = `http://localhost:3000/api/students?dept=${dept}&year=${year}&name=${search}`;
+        const res = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const students = await res.json();
+        renderTable(students);
+      } catch (err) {
+        console.error(err);
+        showToast('Failed to load reports', 'danger');
+      }
+    }
+
+    function renderTable(students) {
+      const tbody = document.querySelector('.data-table tbody');
+      if (!students || students.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4 text-muted">No report data found.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = students.map(s => `
+        <tr>
+          <td><strong>${s.name}</strong></td>
+          <td>${s.roll_number}</td>
+          <td><span class="badge badge-outline">${s.dept_code}</span></td>
+          <td>Year ${s.year} - ${s.section}</td>
+          <td>${s.attendance_pct}%</td>
+          <td>
+            <div class="progress-bar" style="width:100px"><div class="progress" style="width:${s.attendance_pct}%;background:${s.attendance_pct >= 75 ? 'var(--success)' : 'var(--danger)'}"></div></div>
+          </td>
+          <td>
+            <span class="badge ${s.attendance_pct >= 75 ? 'badge-success' : 'badge-danger'}">
+              ${s.attendance_pct >= 75 ? 'Regular' : 'Shortage'}
+            </span>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Add event listener to filter button
+    document.getElementById('btnFilter').addEventListener('click', fetchReport);
+  </script>
+</body>
+
+</html>
