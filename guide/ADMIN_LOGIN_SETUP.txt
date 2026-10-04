@@ -1,0 +1,235 @@
+═══════════════════════════════════════════════════════════════════════════════
+                         ADMIN SETUP INSTRUCTIONS
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 YOUR TASK: Setup Admin Account & Add Faculty/Students
+
+═══════════════════════════════════════════════════════════════════════════════
+STEP-BY-STEP GUIDE
+═══════════════════════════════════════════════════════════════════════════════
+
+▶ STEP 1: Start MySQL (if not already running)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   1. Open XAMPP Control Panel
+   2. Click "Start" for MySQL80
+   3. Wait for "Running" status
+
+▶ STEP 2: Make sure database schema is imported
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   1. Open phpMyAdmin: http://localhost/phpmyadmin
+   2. Create database "edudbms" (if not exists)
+   3. Import schema from: server/db/schema.sql
+   4. Verify all tables exist
+
+▶ STEP 3: Start the Node.js Server
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   1. Open Command Prompt
+   2. Run: cd d:\xampp\htdocs\DBMS PROJECT\server
+   3. Run: npm start
+   
+   Expected output:
+   =================================
+   🚀 EduAttend API running on port 3000
+   =================================
+
+▶ STEP 4: Create Admin Account
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   1. Open NEW Command Prompt window (keep server running)
+   2. Run: cd d:\xampp\htdocs\DBMS PROJECT\server
+   3. Run: node setup-admin.js
+   
+   Expected output:
+   ✅ Connected to MySQL database
+   🔧 Setting up Admin Account...
+   📝 Admin Credentials:
+      Email: admin@eduattend.com
+      Password: admin@123
+   ✅ Admin user created successfully!
+
+▶ STEP 5: Add Sample Faculty & Students (Optional)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   1. In same Command Prompt window:
+   2. Run: node setup-sample-data.js
+   
+   This will add:
+   - 3 Faculty members
+   - 5 Students
+   - Pre-configured across different departments
+
+═══════════════════════════════════════════════════════════════════════════════
+YOUR LOGIN CREDENTIALS
+═══════════════════════════════════════════════════════════════════════════════
+
+Email:    admin@eduattend.com
+Password: admin@123
+Role:     Administrator
+
+═══════════════════════════════════════════════════════════════════════════════
+SAMPLE FACULTY (if you run setup-sample-data.js)
+═══════════════════════════════════════════════════════════════════════════════
+
+Dr. Rajesh Kumar
+  Email: rajesh.kumar@eduattend.com
+  Password: faculty@123
+  Code: FAC001
+  Department: Computer Science & Engineering
+
+Prof. Priya Singh
+  Email: priya.singh@eduattend.com
+  Password: faculty@123
+  Code: FAC002
+  Department: Computer Science & Engineering
+
+Dr. Amit Patel
+  Email: amit.patel@eduattend.com
+  Password: faculty@123
+  Code: FAC003
+  Department: Electronics & Communication Engineering
+
+═══════════════════════════════════════════════════════════════════════════════
+SAMPLE STUDENTS (if you run setup-sample-data.js)
+═══════════════════════════════════════════════════════════════════════════════
+
+Arjun Singh       → 24CS001  (CSE, Year 1)
+Priya Sharma      → 24CS002  (CSE, Year 1)
+Nikhil Desai      → 24CS003  (CSE, Year 1)
+Ananya Gupta      → 24ECE001 (ECE, Year 2)
+Rohan Verma       → 24ECE002 (ECE, Year 2)
+
+All student passwords: student@123
+
+═══════════════════════════════════════════════════════════════════════════════
+HOW TO LOGIN & TEST
+═══════════════════════════════════════════════════════════════════════════════
+
+USING BROWSER/POSTMAN:
+──────────────────────
+1. Open Postman or similar tool
+2. Create POST request to: http://localhost:3000/api/auth/login
+3. Set Header: Content-Type: application/json
+4. Set Body (JSON):
+   {
+     "identifier": "admin@eduattend.com",
+     "password": "admin@123"
+   }
+5. Send request
+6. You should get a JWT token in response
+
+USING CURL:
+───────────
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d "{\"identifier\":\"admin@eduattend.com\",\"password\":\"admin@123\"}"
+
+═══════════════════════════════════════════════════════════════════════════════
+HOW TO ADD NEW FACULTY
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Login as Admin (get JWT token)
+2. Create POST request to: http://localhost:3000/api/admin/faculty
+3. Set Headers:
+   - Content-Type: application/json
+   - Authorization: Bearer {JWT_TOKEN}
+4. Set Body (JSON):
+   {
+     "name": "Prof. Your Name",
+     "email": "yourname@eduattend.com",
+     "password": "secure@password",
+     "faculty_code": "FAC004",
+     "dept_id": 1,
+     "designation": "Assistant Professor",
+     "phone": "+91-9999999999"
+   }
+5. Send request
+
+Department IDs:
+  1 = Computer Science (CSE)
+  2 = Electronics (ECE)
+  3 = Mechanical (ME)
+  4 = Civil (CE)
+  5 = Electrical (EE)
+  6 = Information Technology (IT)
+
+═══════════════════════════════════════════════════════════════════════════════
+HOW TO ADD NEW STUDENT
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Login as Admin (get JWT token)
+2. Create POST request to: http://localhost:3000/api/admin/students
+3. Set Headers:
+   - Content-Type: application/json
+   - Authorization: Bearer {JWT_TOKEN}
+4. Set Body (JSON):
+   {
+     "name": "Student Name",
+     "email": "student@eduattend.com",
+     "password": "studentpass",
+     "student_code": "STU2024007",
+     "roll_number": "24CS011",
+     "dept_id": 1,
+     "year": 2,
+     "section": "A",
+     "phone": "+91-7777777777"
+   }
+5. Send request
+
+Year: 1, 2, 3, or 4
+Section: A, B, or C
+
+═══════════════════════════════════════════════════════════════════════════════
+TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════════
+
+❌ "Cannot connect to database"
+   → Make sure MySQL is running
+   → Verify database "edudbms" exists
+   → Check .env file configuration
+
+❌ "Email already in use"
+   → The account already exists
+   → Use a different email
+
+❌ "Invalid credentials"
+   → Check email/password are correct
+   → Passwords are case-sensitive
+
+❌ Cannot find module
+   → Run: npm install
+   → In server directory
+
+═══════════════════════════════════════════════════════════════════════════════
+AVAILABLE DEPARTMENTS
+═══════════════════════════════════════════════════════════════════════════════
+
+ID  Department Name                          Code
+1   Computer Science and Engineering         CSE
+2   Electronics and Communication Engineering ECE
+3   Mechanical Engineering                   ME
+4   Civil Engineering                        CE
+5   Electrical Engineering                   EE
+6   Information Technology                   IT
+
+═══════════════════════════════════════════════════════════════════════════════
+✅ YOU'RE ALL SET!
+═══════════════════════════════════════════════════════════════════════════════
+
+Your admin account is ready:
+  ✓ Login with admin@eduattend.com / admin@123
+  ✓ Add faculty members
+  ✓ Add students
+  ✓ Manage departments
+  ✓ View statistics
+
+Faculty can:
+  ✓ Login with their credentials
+  ✓ Mark attendance for their classes
+  ✓ View reports
+
+Students can:
+  ✓ Login with their credentials
+  ✓ View their attendance records
+  ✓ View statistics
+
+═══════════════════════════════════════════════════════════════════════════════
+                         HAPPY LEARNING! 🎓
+═══════════════════════════════════════════════════════════════════════════════
