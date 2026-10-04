@@ -1,0 +1,222 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Students — EduAttend</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+
+<body>
+  <div class="page-bg"></div>
+  <div class="grid-overlay"></div>
+  <div id="toast-container"></div>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-logo">EA</div>
+        <div class="sidebar-brand-text">
+          <div class="sidebar-brand-name">EduAttend</div>
+          <div class="sidebar-brand-sub">Admin Panel</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <span class="nav-section-label">Main</span>
+        <a href="admin-dashboard.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+          </svg>Dashboard</a>
+        <a href="students.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>Students</a>
+        <a href="faculty.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="8.5" cy="7" r="4" />
+            <line x1="20" y1="8" x2="20" y2="14" />
+            <line x1="17" y1="11" x2="23" y2="11" />
+          </svg>Faculty</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user" onclick="logout()">
+          <div class="avatar avatar-md"
+            style="background:linear-gradient(135deg,var(--primary),var(--accent));color:white">AD</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebarUserName">Admin</div>
+            <div class="sidebar-user-role">Administrator</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-left"><button class="hamburger" id="hamburger"
+            title="Menu"><span></span><span></span><span></span></button>
+          <div>
+            <div class="topbar-title">Student Management</div>
+            <div class="topbar-subtitle">View and manage all students</div>
+          </div>
+        </div>
+        <div class="topbar-right"><button class="btn btn-primary btn-sm" onclick="openModal('addModal')">+ Add
+            Student</button>
+          <div class="avatar avatar-md"
+            style="background:linear-gradient(135deg,var(--primary),var(--accent));color:white">AD</div>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <div class="page-header animate-fade-in-up">
+          <div>
+            <h1 class="page-title">All <span class="gradient-text">Students</span></h1>
+            <p class="page-subtitle">Manage student records and monitor attendance status</p>
+          </div>
+        </div>
+        <div class="filter-bar animate-fade-in-up delay-1">
+          <input type="text" class="form-control" placeholder="Search by name or code..." id="searchInput"
+            style="max-width:300px" oninput="filterStudents()" />
+          <select class="form-control" id="fDeptFilter" title="Department" onchange="filterStudents()">
+            <option value="">All Departments</option>
+          </select>
+          <span style="margin-left:auto;font-size:13px;color:var(--text-muted)" id="countLabel">0 students</span>
+        </div>
+        <div class="student-grid animate-fade-in-up delay-2" id="studentGrid"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ADD MODAL -->
+  <div class="modal-overlay" id="addModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Add New Student</div><button class="modal-close" data-modal-close>✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">Full Name</label><input type="text" class="form-control"
+            id="mName" placeholder="Rahul Sharma" /></div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-control"
+            id="mEmail" placeholder="rahul@college.edu" /></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group"><label class="form-label">Student Code</label><input type="text" class="form-control"
+              id="mCode" placeholder="STU2024001" /></div>
+          <div class="form-group"><label class="form-label">Roll Number</label><input type="text" class="form-control"
+              id="mRoll" placeholder="24CS001" /></div>
+        </div>
+        <div class="form-group"><label class="form-label">Department</label><select class="form-control" id="mDept" title="Department">
+            <option value="">Select Department</option>
+          </select></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group"><label class="form-label">Year</label><select class="form-control" id="mYear" title="Year">
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4">4th Year</option>
+            </select></div>
+          <div class="form-group"><label class="form-label">Section</label><select class="form-control" id="mSection" title="Section">
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+            </select></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-outline" data-modal-close>Cancel</button><button
+          class="btn btn-primary" onclick="submitAddStudent()">Save Student</button></div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    let allStudents = [];
+    async function fetchData() {
+      const token = localStorage.getItem('ea_token');
+      try {
+        const [stuRes, deptRes] = await Promise.all([
+          fetch('http://localhost:3000/api/students', { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch('http://localhost:3000/api/auth/departments')
+        ]);
+        allStudents = await stuRes.json();
+        const depts = await deptRes.json();
+
+        const fDept = document.getElementById('fDeptFilter');
+        const mDept = document.getElementById('mDept');
+        depts.forEach(d => {
+          const opt = `<option value="${d.id}">${d.name}</option>`;
+          fDept.innerHTML += opt;
+          mDept.innerHTML += opt;
+        });
+        renderStudents(allStudents);
+      } catch (err) { console.error(err); showToast('Failed to load students', 'danger'); }
+    }
+
+    function renderStudents(list) {
+      const grid = document.getElementById('studentGrid');
+      document.getElementById('countLabel').innerText = `${list.length} students`;
+      if (list.length === 0) {
+        grid.innerHTML = '<p class="text-muted text-center p-4 w-full">No students found.</p>';
+        return;
+      }
+      grid.innerHTML = list.map(s => `
+    <div class="panel p-4" style="display:flex;align-items:center;gap:16px;">
+      <div class="avatar avatar-md" style="background:var(--primary-light);color:var(--primary)">${s.name[0]}</div>
+      <div style="flex:1">
+        <div style="font-weight:600">${s.name}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${s.student_code} · ${s.dept_name}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:14px;font-weight:600">${s.year} Year / Sec ${s.section}</div>
+        <div style="font-size:12px;color:var(--primary)">Roll: ${s.roll_number}</div>
+      </div>
+    </div>
+  `).join('');
+    }
+
+    function filterStudents() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const dept = document.getElementById('fDeptFilter').value;
+      const filtered = allStudents.filter(s => {
+        const matchQuery = s.name.toLowerCase().includes(query) || s.student_code.toLowerCase().includes(query);
+        const matchDept = dept === "" || s.dept_id == dept;
+        return matchQuery && matchDept;
+      });
+      renderStudents(filtered);
+    }
+
+    async function submitAddStudent() {
+      const data = {
+        name: document.getElementById('mName').value,
+        email: document.getElementById('mEmail').value,
+        student_code: document.getElementById('mCode').value,
+        roll_number: document.getElementById('mRoll').value,
+        dept_id: document.getElementById('mDept').value,
+        year: document.getElementById('mYear').value,
+        section: document.getElementById('mSection').value,
+        password: 'student123'
+      };
+      try {
+        const res = await fetch('http://localhost:3000/api/admin/students', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('ea_token')}` },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json().catch(() => null);
+        if (!res.ok) throw new Error(result?.error || 'Failed to add');
+        showToast('Student added!', 'success');
+        closeModal('addModal');
+        fetchData();
+      } catch (err) { showToast(err.message, 'danger'); }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchData);
+  </script>
+</body>
+
+</html>
