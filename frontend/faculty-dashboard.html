@@ -1,0 +1,212 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Faculty Dashboard — EduAttend</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+
+<body>
+  <div class="page-bg"></div>
+  <div class="grid-overlay"></div>
+  <div id="toast-container"></div>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-logo">EA</div>
+        <div class="sidebar-brand-text">
+          <div class="sidebar-brand-name">EduAttend</div>
+          <div class="sidebar-brand-sub">Faculty Portal</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <span class="nav-section-label">Main</span>
+        <a href="faculty-dashboard.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+          </svg>Dashboard</a>
+        <a href="mark-attendance.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <path d="M9 11l3 3L22 4" />
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+          </svg>Mark Attendance</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user" onclick="logout()">
+          <div class="avatar avatar-md"
+            style="background:linear-gradient(135deg,var(--primary),var(--accent));color:white">F</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebarUserName">Faculty Name</div>
+            <div class="sidebar-user-role" id="sidebarUserRole">Department</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-left"><button class="hamburger" id="hamburger"
+            title="Toggle sidebar"><span></span><span></span><span></span></button>
+          <div>
+            <div class="topbar-title">Faculty Dashboard</div>
+            <div class="topbar-subtitle" id="topbarSubtitle">Overview</div>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="avatar avatar-md"
+            style="background:linear-gradient(135deg,var(--primary),var(--accent));color:white">F</div>
+        </div>
+      </header>
+
+      <main class="content area">
+        <div class="page-header animate-fade-in-up">
+          <div>
+            <h1 class="page-title">Welcome, <span class="gradient-text" id="welcomeName">Faculty</span> 👋</h1>
+            <p class="page-subtitle">Manage your classes and students</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline btn-sm" onclick="openModal('addStudentModal')">➕ Add Student</button>
+            <a href="mark-attendance.html" class="btn btn-primary btn-sm">📋 Mark Attendance</a>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card blue animate-fade-in-up delay-1">
+            <div class="stat-icon">👥</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-students" data-target="0">0</div>
+              <div class="stat-label">Total Students</div>
+            </div>
+          </div>
+          <div class="stat-card green animate-fade-in-up delay-2">
+            <div class="stat-icon">📈</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-att" data-target="0" data-suffix="%">0%</div>
+              <div class="stat-label">Avg Attendance</div>
+            </div>
+          </div>
+          <div class="stat-card cyan animate-fade-in-up delay-3">
+            <div class="stat-icon">📚</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-subjects" data-target="0">0</div>
+              <div class="stat-label">Subjects</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div style="display:flex;flex-direction:column;gap:24px;">
+            <div class="panel animate-fade-in-up delay-2">
+              <div class="panel-header">
+                <div class="panel-title">Today's Schedule</div>
+              </div>
+              <div class="panel-body" id="scheduleList">
+                <p class="text-muted text-center p-4">No classes today.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="addStudentModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Add New Student</div><button class="modal-close" data-modal-close>✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">Full Name</label><input type="text" class="form-control"
+            id="sName" placeholder="Rahul Sharma" /></div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-control"
+            id="sEmail" placeholder="student@college.edu" /></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group"><label class="form-label">Student Code</label><input type="text" class="form-control"
+              id="sCode" placeholder="STU2024001" /></div>
+          <div class="form-group"><label class="form-label">Roll Number</label><input type="text" class="form-control"
+              id="sRoll" placeholder="24CS001" /></div>
+        </div>
+        <div class="form-group"><label class="form-label">Department</label><select title="Department" class="form-control" id="sDept">
+            <option value="">Select Department</option>
+          </select></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group"><label class="form-label">Year</label><select title="Year" class="form-control" id="sYear">
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4">4th Year</option>
+            </select></div>
+          <div class="form-group"><label class="form-label">Section</label><select title="Section" class="form-control" id="sSection">
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+            </select></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-outline" data-modal-close>Cancel</button><button
+          class="btn btn-primary" onclick="submitAddStudent()">Add Student</button></div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script src="js/charts.js"></script>
+  <script>
+    async function fetchData() {
+      try {
+        const [stats, depts] = await Promise.all([
+          apiFetch('/faculty/stats'),
+          apiFetch('/auth/departments')
+        ]);
+        
+        document.getElementById('stat-students').dataset.target = stats.total_students;
+        document.getElementById('stat-att').dataset.target = stats.avg_attendance;
+        document.getElementById('stat-subjects').dataset.target = stats.subjects;
+        document.querySelectorAll('.stat-value').forEach(animateCounter);
+        
+        const deptSelect = document.getElementById('sDept');
+        if (deptSelect) {
+          deptSelect.innerHTML = '<option value="">Select Department</option>' + 
+            depts.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+        // Toast is already shown by apiFetch if it's a network error
+      }
+    }
+
+    async function submitAddStudent() {
+      const data = {
+        name: document.getElementById('sName').value,
+        email: document.getElementById('sEmail').value,
+        student_code: document.getElementById('sCode').value,
+        roll_number: document.getElementById('sRoll').value,
+        dept_id: document.getElementById('sDept').value,
+        year: document.getElementById('sYear').value,
+        section: document.getElementById('sSection').value,
+        password: 'student123'
+      };
+      
+      try {
+        await apiFetch('/faculty/students', {
+          method: 'POST',
+          body: JSON.stringify(data)
+        });
+        showToast('Student added!', 'success');
+        closeModal('addStudentModal');
+        fetchData();
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchData);
+  </script>
+</body>
+
+</html>
