@@ -1,0 +1,24 @@
+HOW TO RUN THE APPLICATION
+===================================================================
+
+Option 1: Using the Node.js Express Server (Recommended)
+---------------------------------------------------------
+1. Open terminal/cmd
+2. Navigate to the server directory:
+   cd server
+3. Start the server:
+   npm start
+4. Open your browser:
+   http://localhost:3000
+   (The server serves the API at /api and frontend static pages automatically)
+
+Option 2: Using http-server for Frontend Development
+---------------------------------------------------------
+1. Install http-server globally (one-time):
+   npm install -g http-server
+2. Navigate to the frontend directory:
+   cd frontend
+3. Run http-server:
+   http-server
+4. Open the displayed URL in your browser (e.g. http://127.0.0.1:8080)
+   (Make sure the backend server in /server is also running on port 3000 for APIs)
